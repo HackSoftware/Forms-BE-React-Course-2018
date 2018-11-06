@@ -14,7 +14,7 @@ class Meal(models.Model):
 
 
 class User(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     email = models.EmailField()
     phone = models.CharField(max_length=255)
 
