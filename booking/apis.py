@@ -9,7 +9,29 @@ from booking.models import RoomType, Meal, User, BookingRequest
 
 
 class RoomTypeListApi(ListAPIView):
+    class OutputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = RoomType
+            fields = (
+                'name',
+                'id'
+            )
+
+    serializer_class = OutputSerializer
     queryset = RoomType.objects.all()
+
+
+class MealListApi(ListAPIView):
+    class OutputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Meal
+            fields = (
+                'name',
+                'id'
+            )
+
+    serializer_class = OutputSerializer
+    queryset = Meal.objects.all()
 
 
 class BookingRequestApi(APIView):
@@ -62,3 +84,43 @@ class BookingRequestApi(APIView):
         )
 
         return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(booking_request).data)
+
+
+class EmailExistApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        email = serializers.CharField()
+
+    serializer_class = InputSerializer
+
+    class OutputSerializer(serializers.ModelSerializer):
+        name = serializers.CharField(source='user.name')
+        phone = serializers.CharField(source='user.phone')
+        email = serializers.CharField(source='user.email')
+        meal = serializers.CharField(source='meal.name')
+        room_type = serializers.CharField(source='room_type.name')
+
+        class Meta:
+            model = BookingRequest
+            fields = (
+                'name',
+                'email',
+                'phone',
+                'created_at',
+                'meal',
+                'room_type',
+                'number_of_people',
+                'notes'
+            )
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        email_exist = User.objects.filter(email=data['email']).exists()
+
+        message = 'Email free'
+        if email_exist:
+            message = 'A user with such email already exists'
+
+        return Response(status=status.HTTP_200_OK, data={'message': message})
