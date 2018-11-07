@@ -38,16 +38,16 @@ class BookingRequestApi(APIView):
     class InputSerializer(serializers.Serializer):
         name = serializers.CharField()
         email = serializers.CharField()
-        phone = serializers.CharField()
+        phone = serializers.CharField(required=False, allow_null=True)
 
         start = serializers.DateField(format='%Y-%m-%d')
         end = serializers.DateField(format='%Y-%m-%d')
 
         room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
         meal = serializers.PrimaryKeyRelatedField(queryset=Meal.objects.all())
-        number_of_people = serializers.IntegerField()
+        number_of_people = serializers.IntegerField(required=False, allow_null=True)
 
-        notes = serializers.CharField()
+        notes = serializers.CharField(required=False, allow_null=True)
 
     serializer_class = InputSerializer
 

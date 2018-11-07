@@ -16,7 +16,7 @@ class Meal(models.Model):
 class User(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=255)
+    phone = models.CharField(max_length=255, null=True)
 
 
 class BookingRequest(models.Model):
@@ -27,6 +27,6 @@ class BookingRequest(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)
     room_type = models.ForeignKey(RoomType)
     meal = models.ForeignKey(Meal)
-    number_of_people = models.IntegerField()
+    number_of_people = models.IntegerField(null=True, blank=True)
 
-    notes = models.CharField(max_length=255)
+    notes = models.CharField(max_length=255, null=True)
