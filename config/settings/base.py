@@ -71,6 +71,7 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     'booking.apps.BookingConfig',
+    'corsheaders'
 
     # Your stuff: custom apps go here
 ]
@@ -122,6 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -231,3 +233,5 @@ SOCIALACCOUNT_ADAPTER = 'forms_be.users.adapters.SocialAccountAdapter'
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+CORS_ORIGIN_ALLOW_ALL = True
