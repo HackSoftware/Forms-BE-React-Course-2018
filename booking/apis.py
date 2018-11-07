@@ -72,7 +72,17 @@ class BookingRequestApi(APIView):
             )
 
     def post(self, request, *args, **kwargs):
-        serializer = self.InputSerializer(data=request.data)
+        serializer = self.InputSerializer(data={
+            'name': request.data.get('name'),
+            'email': request.data.get('email'),
+            'phone': request.data.get('phone'),
+            'start': request.data.get('start'),
+            'end': request.data.get('end'),
+            'room_type': request.data.get('roomType'),
+            'meal': request.data.get('meal'),
+            'number_of_people': request.data.get('numberOfPeople'),
+            'notes': request.data.get('notes'),
+        })
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
@@ -80,7 +90,12 @@ class BookingRequestApi(APIView):
 
         booking_request = BookingRequest.objects.create(
             user=user,
-            **data
+            start=data['start'],
+            end=data['end'],
+            room_type=data['room_type'],
+            meal=data['meal'],
+            number_of_people=data['number_of_people'],
+            notes=data['notes']
         )
 
         return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(booking_request).data)
