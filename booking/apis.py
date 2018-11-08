@@ -4,6 +4,7 @@ from rest_framework.generics import ListAPIView
 
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from booking.models import RoomType, Meal, User, BookingRequest
 
@@ -86,6 +87,9 @@ class BookingRequestApi(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
+        user_exists = User.objects.filter(email=data['email'])
+        if user_exists:
+            raise ValidationError('A user with such email already exists')
         user = User.objects.create(email=data['email'], name=data['name'], phone=data['phone'])
 
         booking_request = BookingRequest.objects.create(
