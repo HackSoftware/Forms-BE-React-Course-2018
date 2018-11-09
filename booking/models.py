@@ -26,7 +26,7 @@ class BookingRequest(models.Model):
 
     user = models.ForeignKey(User, null=True, blank=True)
     room_type = models.ForeignKey(RoomType)
-    meal = models.ForeignKey(Meal)
+    meal = models.ForeignKey(Meal, null=True, blank=True)
     number_of_people = models.IntegerField(null=True, blank=True)
 
     notes = models.CharField(max_length=255, null=True)

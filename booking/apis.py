@@ -45,7 +45,7 @@ class BookingRequestApi(APIView):
         end = serializers.DateField(format='%Y-%m-%d')
 
         room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
-        meal = serializers.PrimaryKeyRelatedField(queryset=Meal.objects.all())
+        meal = serializers.PrimaryKeyRelatedField(queryset=Meal.objects.all(), required=False, allow_null=True)
         number_of_people = serializers.IntegerField(required=False, allow_null=True)
 
         notes = serializers.CharField(required=False, allow_null=True)
@@ -56,7 +56,7 @@ class BookingRequestApi(APIView):
         name = serializers.CharField(source='user.name')
         phone = serializers.CharField(source='user.phone')
         email = serializers.CharField(source='user.email')
-        meal = serializers.CharField(source='meal.name')
+        meal = serializers.CharField(source='meal.name', required=False)
         room_type = serializers.CharField(source='room_type.name')
 
         class Meta:
@@ -97,7 +97,7 @@ class BookingRequestApi(APIView):
             start=data['start'],
             end=data['end'],
             room_type=data['room_type'],
-            meal=data['meal'],
+            meal=data.get('meal'),
             number_of_people=data['number_of_people'],
             notes=data['notes']
         )
