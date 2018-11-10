@@ -143,3 +143,34 @@ class EmailExistApi(APIView):
             message = 'A user with such email already exists'
 
         return Response(status=status.HTTP_200_OK, data={'message': message})
+
+
+class BookingRequestsApi(ListAPIView):
+    class OutputSerializer(serializers.ModelSerializer):
+        name = serializers.CharField(source='user.name')
+        email = serializers.CharField(source='user.email')
+
+        class Meta:
+            model = BookingRequest
+            fields = (
+                'id',
+                'name',
+                'email',
+                'start',
+                'end'
+            )
+
+    serializer_class = OutputSerializer
+
+    def get_queryset(self):
+        name = self.request.query_params.get('name', None)
+        start = self.request.query_params.get('start', None)
+        end = self.request.query_params.get('end', None)
+
+        if name is not None:
+            return BookingRequest.objects.filter(user__name__icontains=name.encode())
+
+        if start is not None and end is not None:
+            return BookingRequest.objects.filter(start=start, end=end)
+
+        return BookingRequest.objects.all()
