@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
-from booking.models import RoomType, Meal, User, BookingRequest
+from booking.models import RoomType, Meal, User, BookingRequest, Room
 
 
 class RoomTypeListApi(ListAPIView):
@@ -45,6 +45,7 @@ class BookingRequestApi(APIView):
         end = serializers.DateField(format='%Y-%m-%d')
 
         room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
+        room = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all(), required=False, allow_null=True)
         meal = serializers.PrimaryKeyRelatedField(queryset=Meal.objects.all(), required=False, allow_null=True)
         number_of_people = serializers.IntegerField(required=False, allow_null=True)
 
@@ -92,6 +93,10 @@ class BookingRequestApi(APIView):
             raise ValidationError('A user with such email already exists')
         user = User.objects.create(email=data['email'], name=data['name'], phone=data['phone'])
 
+        room = data['room']
+        if not room.available:
+            raise ValidationError('This room is not available')
+
         booking_request = BookingRequest.objects.create(
             user=user,
             start=data['start'],
@@ -99,7 +104,8 @@ class BookingRequestApi(APIView):
             room_type=data['room_type'],
             meal=data.get('meal'),
             number_of_people=data['number_of_people'],
-            notes=data['notes']
+            notes=data['notes'],
+            room=data['room']
         )
 
         return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(booking_request).data)
@@ -193,3 +199,32 @@ class CheckPhoneApi(APIView):
             raise ValidationError('This phone is alreay taken')
 
         return Response(status=status.HTTP_200_OK)
+
+
+class GetAvailableRoomsApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
+
+    class OutputSerializer(serializers.ModelSerializer):
+        room_type = serializers.CharField(source='room_type.name')
+        name = serializers.CharField(source='number')
+
+        class Meta:
+            model = Room
+            fields = (
+                'id',
+                'name',
+                'room_type',
+                'available'
+            )
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.InputSerializer(data={
+            'room_type': self.kwargs.get('room_type')
+        })
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        rooms = Room.objects.filter(room_type=data['room_type'], available=True)
+
+        return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(rooms, many=True).data)

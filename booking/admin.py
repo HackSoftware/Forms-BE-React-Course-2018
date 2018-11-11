@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from .models import Meal, BookingRequest, RoomType, User
+from .models import Meal, BookingRequest, RoomType, User, Room
 
 
 @admin.register(Meal)
@@ -35,4 +35,13 @@ class User(admin.ModelAdmin):
         'name',
         'email',
         'phone',
+)
+
+
+@admin.register(Room)
+class Room(admin.ModelAdmin):
+    list_display = (
+        'number',
+        'available',
+        'room_type'
 )
