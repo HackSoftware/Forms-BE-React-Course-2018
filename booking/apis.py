@@ -149,6 +149,7 @@ class BookingRequestsApi(ListAPIView):
     class OutputSerializer(serializers.ModelSerializer):
         name = serializers.CharField(source='user.name')
         email = serializers.CharField(source='user.email')
+        phone = serializers.CharField(source='user.phone')
 
         class Meta:
             model = BookingRequest
@@ -156,6 +157,7 @@ class BookingRequestsApi(ListAPIView):
                 'id',
                 'name',
                 'email',
+                'phone',
                 'start',
                 'end'
             )
@@ -174,3 +176,20 @@ class BookingRequestsApi(ListAPIView):
             return BookingRequest.objects.filter(start=start, end=end)
 
         return BookingRequest.objects.all()
+
+
+class CheckPhoneApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        phone = serializers.CharField(required=False, allow_blank=True)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        email_exist = User.objects.filter(phone=data['phone']).exists()
+
+        if email_exist:
+            raise ValidationError('This phone is alreay taken')
+
+        return Response(status=status.HTTP_200_OK)

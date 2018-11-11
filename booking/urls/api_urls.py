@@ -6,7 +6,8 @@ from booking.apis import (
     BookingRequestApi,
     EmailExistApi,
     MealListApi,
-    BookingRequestsApi
+    BookingRequestsApi,
+    CheckPhoneApi
 )
 
 urlpatterns = [
@@ -34,5 +35,10 @@ urlpatterns = [
         regex=r'^booking-requests/$',
         view=BookingRequestsApi.as_view(),
         name='booking-requests'
+    ),
+    url(
+        regex=r'^check-phone/$',
+        view=CheckPhoneApi.as_view(),
+        name='check-phone'
     ),
 ]
