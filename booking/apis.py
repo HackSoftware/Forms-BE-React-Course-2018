@@ -93,8 +93,8 @@ class BookingRequestApi(APIView):
             raise ValidationError('A user with such email already exists')
         user = User.objects.create(email=data['email'], name=data['name'], phone=data['phone'])
 
-        room = data['room']
-        if not room.available:
+        room = data.get('room')
+        if room and not room.available:
             raise ValidationError('This room is not available')
 
         booking_request = BookingRequest.objects.create(
@@ -105,7 +105,7 @@ class BookingRequestApi(APIView):
             meal=data.get('meal'),
             number_of_people=data['number_of_people'],
             notes=data['notes'],
-            room=data['room']
+            room=room
         )
 
         return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(booking_request).data)
@@ -228,3 +228,26 @@ class GetAvailableRoomsApi(APIView):
         rooms = Room.objects.filter(room_type=data['room_type'], available=True)
 
         return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(rooms, many=True).data)
+
+
+class EmailExistPerNameApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        name = serializers.CharField(required=False, allow_blank=True)
+
+    class OutputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = User
+            fields = (
+                'id',
+                'name',
+                'email',
+            )
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        users = User.objects.filter(name=data['name'])
+
+        return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(users, many=True).data)
