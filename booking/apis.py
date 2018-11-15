@@ -88,9 +88,6 @@ class BookingRequestApi(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        user_exists = User.objects.filter(email=data['email'])
-        if user_exists:
-            raise ValidationError('A user with such email already exists')
         user = User.objects.create(email=data['email'], name=data['name'], phone=data['phone'])
 
         room = data.get('room')

@@ -21,7 +21,7 @@ class Room(models.Model):
 
 class User(models.Model):
     name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     phone = models.CharField(max_length=255, null=True)
 
 
