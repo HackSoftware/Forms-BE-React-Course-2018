@@ -248,3 +248,7 @@ class EmailExistPerNameApi(APIView):
         users = User.objects.filter(name=data['name'])
 
         return Response(status=status.HTTP_200_OK, data=self.OutputSerializer(users, many=True).data)
+
+
+class ListMembersApi(APIView):
+    pass
